@@ -1,0 +1,109 @@
+#lang racket
+(require db)
+;(require mred-designer)
+(define SQLite
+        (sqlite3-connect #:database "G:\Meu Drive\Facul\Programação Lógica e Funcional\Trabalho01\db"
+                         #:mode 'create)
+)
+;==========================================================================
+;===                Code generated with MrEd Designer 3.17              ===
+;===              https://github.com/Metaxal/MrEd-Designer              ===
+;==========================================================================
+
+; Call (campeonatoPescaIFC-init) with optional arguments to this module
+
+(require
+ racket/gui/base
+ racket/class
+ racket/list
+ )
+
+;(provide campeonatoPescaIFC-init frCadastroPescadores)
+
+(define (label-bitmap-proc l)
+  (let ((label (first l)) (image? (second l)) (file (third l)))
+    (or (and image?
+             (or (and file
+                      (let ((bmp (make-object bitmap% file 'unknown/mask)))
+                        (and (send bmp ok?) bmp)))
+                 "<Bad Image>"))
+        label)))
+
+(define (list->font l)
+  (with-handlers
+   ((exn:fail?
+     (λ (e)
+       (send/apply
+        the-font-list
+        find-or-create-font
+        (cons (first l) (rest (rest l)))))))
+   (send/apply the-font-list find-or-create-font l)))
+
+(define campeonatoPescaIFC #f)
+(define frCadastroPescadores #f)
+(define pCadastroPescadores #f)
+(define txtNomePescador #f)
+(define (campeonatoPescaIFC-init
+         #:frCadastroPescadores-min-width
+         (frCadastroPescadores-min-width 800)
+         #:frCadastroPescadores-min-height
+         (frCadastroPescadores-min-height 400)
+         #:txtNomePescador-callback
+         (txtNomePescador-callback (lambda (text-field control-event) (void)))
+         #:txtNomePescador-vert-margin
+         (txtNomePescador-vert-margin 50)
+         #:txtNomePescador-horiz-margin
+         (txtNomePescador-horiz-margin 50))
+  (set! frCadastroPescadores
+    (new
+     frame%
+     (parent campeonatoPescaIFC)
+     (label "Cadastro dos Pescadores")
+     (width 800)
+     (height 400)
+     (x #f)
+     (y #f)
+     (style '())
+     (enabled #t)
+     (border 0)
+     (spacing 0)
+     (alignment (list 'center 'center))
+     (min-width frCadastroPescadores-min-width)
+     (min-height frCadastroPescadores-min-height)
+     (stretchable-width #t)
+     (stretchable-height #t)))
+  (set! pCadastroPescadores
+    (new
+     pane%
+     (parent frCadastroPescadores)
+     (vert-margin 0)
+     (horiz-margin 0)
+     (border 0)
+     (spacing 0)
+     (alignment (list 'center 'center))
+     (min-width 800)
+     (min-height 400)
+     (stretchable-width #t)
+     (stretchable-height #t)))
+  (set! txtNomePescador
+    (new
+     text-field%
+     (parent pCadastroPescadores)
+     (label "Nome do pescador")
+     (callback txtNomePescador-callback)
+     (init-value "")
+     (style
+      ((λ (l) (list* (first l) (second l) (third l)))
+       (list 'single 'horizontal-label '())))
+     (font
+      (list->font (list 8 "Segoe UI" 'default 'normal 'normal #f 'default #f)))
+     (enabled #t)
+     (vert-margin txtNomePescador-vert-margin)
+     (horiz-margin txtNomePescador-horiz-margin)
+     (min-width 0)
+     (min-height 0)
+     (stretchable-width #f)
+     (stretchable-height #f)))
+  (send frCadastroPescadores show #t))
+
+(module+ main (campeonatoPescaIFC-init))
