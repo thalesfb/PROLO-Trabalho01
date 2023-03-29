@@ -225,7 +225,8 @@
             (new
              prop:some-of%
              (value (list))
-             (choices (list 'no-caption 'resize-border 'no-sheet))))
+              (choices (list 'no-caption 'resize-border))))
+             ; (choices (list 'no-caption 'resize-border 'no-sheet))))
            (code-67304 (new prop:popup% (value code-67305)))
            (code-67303
             (new
@@ -7230,8 +7231,11 @@
            (code-68561
             (new
              prop:some-of%
-             (value (list 'no-sheet))
-             (choices (list 'no-caption 'resize-border 'no-sheet))))
+              (value (list))
+              ;(value (list 'no-sheet))
+             ;(choices (list 'no-caption 'resize-border 'no-sheet))
+             (choices (list 'no-caption 'resize-border))
+             ))
            (code-68560 (new prop:popup% (value code-68561)))
            (code-68559
             (new

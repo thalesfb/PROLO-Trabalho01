@@ -1,4 +1,4 @@
-#lang racket/base
+#| #lang racket/base
 
 ;;==========================================================================
 ;;===                Code generated with MrEd Designer 3.17              ===
@@ -221,3 +221,4 @@
   (send frCompetidores show #f))
 
 (module+ main (campeonatoPescaIFC-init))
+ |#

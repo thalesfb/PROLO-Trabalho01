@@ -45,4 +45,10 @@ SELECT * FROM campeonato;
 
 SELECT *
 from campeonato
-where nome = -- verificar
+where nome = ;-- verificar
+
+INSERT INTO campeonato (nome, n_competidores, precoKG);
+
+SELECT * from competidor;
+
+insert into competidor (nome, cpf, ano_nasc, cidade) VALUES ();
