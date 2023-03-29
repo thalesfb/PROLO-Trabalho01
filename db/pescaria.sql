@@ -42,3 +42,7 @@ SELECT * FROM campeonato;
 -- ALTER TABLE "competidor" ADD COLUMN AFTER "ano_nasc" "cidade" TEXT NOT NULL;
 
 -- PRAGMA table_info(competidor);
+
+SELECT *
+from campeonato
+where nome = -- verificar
