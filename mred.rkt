@@ -14,21 +14,19 @@
  )
 
 (provide campeonatoPescaIFC-init
-         frCampeonato
+         dlogCampeonato
          txtNomeCampeonato
          txtNumeroCompetidores
          txtPrecoPeixe
          btSalvarCampeonato
-         dlogResultadoConsulta
-         frCompetidores
+         dlogCompetidores
          txtNomeCompetidor
          txtCPF
          txtCidade
          txtIdade
          gpboxListaCompetidores
-         dlogCompetidor
-         frPartidas
-         frGanhador)
+         dlogPartidas
+         dlogGanhador)
 
 (define (label-bitmap-proc l)
   (let ((label (first l)) (image? (second l)) (file (third l)))
@@ -50,16 +48,14 @@
    (send/apply the-font-list find-or-create-font l)))
 
 (define campeonatoPescaIFC #f)
-(define frCampeonato #f)
+(define dlogCampeonato #f)
 (define vpCampeonato #f)
 (define txtNomeCampeonato #f)
 (define hpCampeonato #f)
 (define txtNumeroCompetidores #f)
 (define txtPrecoPeixe #f)
 (define btSalvarCampeonato #f)
-(define dlogResultadoConsulta #f)
-(define msgResultadoConsulta #f)
-(define frCompetidores #f)
+(define dlogCompetidores #f)
 (define gpboxCompetidores #f)
 (define vpCompetidor #f)
 (define txtNomeCompetidor #f)
@@ -74,18 +70,22 @@
 (define btSalvarCompetidor #f)
 (define gpboxListaCompetidores #f)
 (define lboxCompetidores #f)
-(define dlogCompetidor #f)
-(define msgCompetidor #f)
-(define frPartidas #f)
+(define dlogPartidas #f)
 (define vpPartidas #f)
 (define list-box-43838 #f)
 (define btVerGanhador #f)
-(define frGanhador #f)
+(define dlogGanhador #f)
 (define pGanhador #f)
 (define msgGanhador #f)
 (define (campeonatoPescaIFC-init
-         #:frCampeonato-label
-         (frCampeonato-label "Campeonato")
+         #:dlogCampeonato-width
+         (dlogCampeonato-width 400)
+         #:dlogCampeonato-height
+         (dlogCampeonato-height 200)
+         #:dlogCampeonato-min-width
+         (dlogCampeonato-min-width 400)
+         #:dlogCampeonato-min-height
+         (dlogCampeonato-min-height 200)
          #:vpCampeonato-vert-margin
          (vpCampeonato-vert-margin 10)
          #:vpCampeonato-horiz-margin
@@ -168,23 +168,14 @@
            (list 12 "Century Gothic" 'default 'normal 'normal #f 'default #f)))
          #:btSalvarCampeonato-enabled
          (btSalvarCampeonato-enabled #t)
-         #:dlogResultadoConsulta-min-width
-         (dlogResultadoConsulta-min-width 400)
-         #:dlogResultadoConsulta-min-height
-         (dlogResultadoConsulta-min-height 200)
-         #:msgResultadoConsulta-label
-         (msgResultadoConsulta-label
-          (label-bitmap-proc (list "Resultado consulta" #f #f)))
-         #:msgResultadoConsulta-font
-         (msgResultadoConsulta-font
-          (list->font
-           (list 12 "Century Gothic" 'default 'normal 'normal #f 'default #f)))
-         #:msgResultadoConsulta-enabled
-         (msgResultadoConsulta-enabled #t)
-         #:frCompetidores-label
-         (frCompetidores-label "Competidores")
-         #:frCompetidores-enabled
-         (frCompetidores-enabled #t)
+         #:dlogCompetidores-width
+         (dlogCompetidores-width 400)
+         #:dlogCompetidores-height
+         (dlogCompetidores-height 200)
+         #:dlogCompetidores-min-width
+         (dlogCompetidores-min-width 400)
+         #:dlogCompetidores-min-height
+         (dlogCompetidores-min-height 200)
          #:gpboxCompetidores-code-gen-class
          (gpboxCompetidores-code-gen-class group-box-panel%)
          #:gpboxCompetidores-label
@@ -329,23 +320,14 @@
          (lboxCompetidores-min-width 800)
          #:lboxCompetidores-min-height
          (lboxCompetidores-min-height 200)
-         #:dlogCompetidor-label
-         (dlogCompetidor-label "Competidor")
-         #:dlogCompetidor-min-width
-         (dlogCompetidor-min-width 400)
-         #:dlogCompetidor-min-height
-         (dlogCompetidor-min-height 200)
-         #:msgCompetidor-label
-         (msgCompetidor-label
-          (label-bitmap-proc (list "Aqui a ação com o competidor" #f #f)))
-         #:msgCompetidor-font
-         (msgCompetidor-font
-          (list->font
-           (list 12 "Century Gothic" 'default 'normal 'normal #f 'default #f)))
-         #:msgCompetidor-enabled
-         (msgCompetidor-enabled #t)
-         #:frPartidas-label
-         (frPartidas-label "Partidas")
+         #:dlogPartidas-width
+         (dlogPartidas-width 400)
+         #:dlogPartidas-height
+         (dlogPartidas-height 200)
+         #:dlogPartidas-min-width
+         (dlogPartidas-min-width 400)
+         #:dlogPartidas-min-height
+         (dlogPartidas-min-height 200)
          #:list-box-43838-choices
          (list-box-43838-choices (list "test" "test2" "test3"))
          #:list-box-43838-callback
@@ -374,8 +356,10 @@
          (btVerGanhador-style '())
          #:btVerGanhador-horiz-margin
          (btVerGanhador-horiz-margin 2)
-         #:frGanhador-label
-         (frGanhador-label "Ganhador")
+         #:dlogGanhador-width
+         (dlogGanhador-width 400)
+         #:dlogGanhador-height
+         (dlogGanhador-height 200)
          #:msgGanhador-label
          (msgGanhador-label
           (label-bitmap-proc (list "Aqui o ganhador!" #f #f)))
@@ -385,13 +369,13 @@
            (list 12 "Century Gothic" 'default 'normal 'normal #f 'default #f)))
          #:msgGanhador-enabled
          (msgGanhador-enabled #t))
-  (set! frCampeonato
+  (set! dlogCampeonato
     (new
-     frame%
+     dialog%
      (parent campeonatoPescaIFC)
-     (label frCampeonato-label)
-     (width 400)
-     (height 200)
+     (label "Campeonato")
+     (width dlogCampeonato-width)
+     (height dlogCampeonato-height)
      (x #f)
      (y #f)
      (style '())
@@ -399,14 +383,14 @@
      (border 0)
      (spacing 0)
      (alignment (list 'center 'top))
-     (min-width 400)
-     (min-height 200)
+     (min-width dlogCampeonato-min-width)
+     (min-height dlogCampeonato-min-height)
      (stretchable-width #t)
      (stretchable-height #t)))
   (set! vpCampeonato
     (new
      vertical-panel%
-     (parent frCampeonato)
+     (parent dlogCampeonato)
      (style '())
      (enabled #t)
      (vert-margin vpCampeonato-vert-margin)
@@ -496,61 +480,28 @@
      (min-height 0)
      (stretchable-width #f)
      (stretchable-height #f)))
-  (set! dlogResultadoConsulta
+  (set! dlogCompetidores
     (new
      dialog%
-     (parent frCampeonato)
-     (label "Resultado consulta")
-     (width #f)
-     (height #f)
+     (parent campeonatoPescaIFC)
+     (label "Competidores")
+     (width dlogCompetidores-width)
+     (height dlogCompetidores-height)
      (x #f)
      (y #f)
      (style '())
      (enabled #t)
      (border 0)
      (spacing 0)
-     (alignment (list 'center 'center))
-     (min-width dlogResultadoConsulta-min-width)
-     (min-height dlogResultadoConsulta-min-height)
-     (stretchable-width #t)
-     (stretchable-height #t)))
-  (set! msgResultadoConsulta
-    (new
-     message%
-     (parent dlogResultadoConsulta)
-     (label msgResultadoConsulta-label)
-     (style '())
-     (font msgResultadoConsulta-font)
-     (enabled msgResultadoConsulta-enabled)
-     (vert-margin 2)
-     (horiz-margin 2)
-     (min-width 0)
-     (min-height 0)
-     (stretchable-width #f)
-     (stretchable-height #f)
-     (auto-resize #f)))
-  (set! frCompetidores
-    (new
-     frame%
-     (parent campeonatoPescaIFC)
-     (label frCompetidores-label)
-     (width 400)
-     (height 200)
-     (x #f)
-     (y #f)
-     (style '())
-     (enabled frCompetidores-enabled)
-     (border 0)
-     (spacing 0)
      (alignment (list 'center 'top))
-     (min-width 400)
-     (min-height 200)
+     (min-width dlogCompetidores-min-width)
+     (min-height dlogCompetidores-min-height)
      (stretchable-width #t)
      (stretchable-height #t)))
   (set! gpboxCompetidores
     (new
      gpboxCompetidores-code-gen-class
-     (parent frCompetidores)
+     (parent dlogCompetidores)
      (label gpboxCompetidores-label)
      (style gpboxCompetidores-style)
      (font gpboxCompetidores-font)
@@ -752,7 +703,7 @@
   (set! gpboxListaCompetidores
     (new
      gpboxListaCompetidores-code-gen-class
-     (parent frCompetidores)
+     (parent dlogCompetidores)
      (label gpboxListaCompetidores-label)
      (style gpboxListaCompetidores-style)
      (font gpboxListaCompetidores-font)
@@ -787,46 +738,13 @@
      (stretchable-height #f)
      (columns (list "Column"))
      (column-order #f)))
-  (set! dlogCompetidor
+  (set! dlogPartidas
     (new
      dialog%
-     (parent frCompetidores)
-     (label dlogCompetidor-label)
-     (width #f)
-     (height #f)
-     (x #f)
-     (y #f)
-     (style '())
-     (enabled #t)
-     (border 0)
-     (spacing 0)
-     (alignment (list 'center 'center))
-     (min-width dlogCompetidor-min-width)
-     (min-height dlogCompetidor-min-height)
-     (stretchable-width #t)
-     (stretchable-height #t)))
-  (set! msgCompetidor
-    (new
-     message%
-     (parent dlogCompetidor)
-     (label msgCompetidor-label)
-     (style '())
-     (font msgCompetidor-font)
-     (enabled msgCompetidor-enabled)
-     (vert-margin 2)
-     (horiz-margin 2)
-     (min-width 0)
-     (min-height 0)
-     (stretchable-width #f)
-     (stretchable-height #f)
-     (auto-resize #f)))
-  (set! frPartidas
-    (new
-     frame%
      (parent campeonatoPescaIFC)
-     (label frPartidas-label)
-     (width 400)
-     (height 200)
+     (label "Partidas")
+     (width dlogPartidas-width)
+     (height dlogPartidas-height)
      (x #f)
      (y #f)
      (style '())
@@ -834,14 +752,14 @@
      (border 0)
      (spacing 0)
      (alignment (list 'center 'top))
-     (min-width 400)
-     (min-height 200)
+     (min-width dlogPartidas-min-width)
+     (min-height dlogPartidas-min-height)
      (stretchable-width #t)
      (stretchable-height #t)))
   (set! vpPartidas
     (new
      vertical-panel%
-     (parent frPartidas)
+     (parent dlogPartidas)
      (style '())
      (enabled #t)
      (vert-margin 0)
@@ -891,13 +809,13 @@
      (min-height 0)
      (stretchable-width #f)
      (stretchable-height #f)))
-  (set! frGanhador
+  (set! dlogGanhador
     (new
-     frame%
+     dialog%
      (parent campeonatoPescaIFC)
-     (label frGanhador-label)
-     (width 400)
-     (height 200)
+     (label "Parabéns ao ganhador!")
+     (width dlogGanhador-width)
+     (height dlogGanhador-height)
      (x #f)
      (y #f)
      (style '())
@@ -905,14 +823,14 @@
      (border 0)
      (spacing 0)
      (alignment (list 'center 'top))
-     (min-width 400)
-     (min-height 200)
+     (min-width 70)
+     (min-height 30)
      (stretchable-width #t)
      (stretchable-height #t)))
   (set! pGanhador
     (new
      pane%
-     (parent frGanhador)
+     (parent dlogGanhador)
      (vert-margin 0)
      (horiz-margin 0)
      (border 0)
@@ -937,6 +855,6 @@
      (stretchable-width #f)
      (stretchable-height #f)
      (auto-resize #f)))
-  (send frCampeonato show #t))
+  (send dlogCampeonato show #t))
 
 (module+ main (campeonatoPescaIFC-init))

@@ -2,7 +2,6 @@
 
 (require
   racket/gui/base
-  racket/gui
   ;racket/gui/dialog
   racket/class
   racket/list
@@ -10,9 +9,9 @@
 (require db)
 (define conn (sqlite3-connect #:database "./db/pescaria.db"
                               #:mode 'create))
-(when (not (sql-null? conn))
-  (printf "Connected to SQLite database!\n")
-  (printf "Not Connected to SQLite database!\n"))
+#|   (when (not (sql-null? conn))
+    (printf "Connected to SQLite database!\n")
+    (printf "Not Connected to SQLite database!\n")) |#
 
 (define create-campeonato-table
   "CREATE TABLE IF NOT EXISTS campeonato (
@@ -32,9 +31,6 @@
      CPF INTEGER NOT NULL UNIQUE,
      ano_nasc INTEGER NOT NULL,
      cidade TEXT NOT NULL,
-     peso_pescado real,
-     comprimento_total integer,
-     debito real,
      FOREIGN KEY(id_campeonato) REFERENCES campeonato(id_campeonato)
    );")
 
@@ -56,96 +52,27 @@
 (define (consultarCampeonato conn nome)
   (define stmt
     (prepare conn "SELECT * FROM campeonato WHERE nome = ?"))
-  (query-rows conn stmt nome))
+  (define result (query-rows conn stmt nome))
 
-(define (inserirCampeonato conn nome n_competidores precoKG)
-  (define stmt
-    (prepare conn "INSERT INTO campeonato (nome, n_competidores, precoKG) VALUES (?, ?, ?)"))
-  (query-exec conn stmt nome n_competidores precoKG))
+  (if (not (empty? result))
+      (car result)
+      #f))
 
 (define (inserirCompetidor conn nome cpf idade cidade)
   (define stmt
     (prepare conn "INSERT INTO competidor (id_campeonato, nome, CPF, ano_nasc, cidade) VALUES (?, ?, ?, ?, ?)"))
   (query-exec conn stmt id_campeonato nome cpf idade cidade))
 
-(define (excluirCompetidor conn cpf)
-  (define stmt
-    (prepare conn "DELETE FROM competidor WHERE cpf = ?"))
-  (query-exec conn stmt id_competidor))
-
-(define (consultarCompetidores conn id_campeonato)
-  (define stmt
-    (prepare conn "SELECT * FROM competidor WHERE id_campeonato = ?"))
-  (query-rows conn stmt id_campeonato))
-
 (define (consultarCompetidor conn nome cpf idade cidade)
   (define stmt
     (prepare conn "SELECT * FROM competidor WHERE nome = ? and CPF = ? and ano_nasc = ? and cidade = ?"))
-  (query-rows conn stmt nome cpf idade cidade))
+  (define result (query-rows conn stmt nome cpf idade cidade))
 
-(define (atualizarCompetidor conn nome cpf idade cidade)
-  (define stmt
-    (prepare conn "UPDATE competidor SET nome = ?, CPF = ?, ano_nasc = ?, cidade = ? WHERE id_competidor = ?"))
-  (query-exec conn stmt nome cpf idade cidade id_competidor))
+  (if (not (empty? result))
+      (car result)
+      #f))
 
-(define (inserirPartida conn id_competidor1 id_competidor2)
-  (define stmt
-    (prepare conn "INSERT INTO partida (id_campeonato, id_competidor1, id_competidor2) VALUES (?, ?, ?)"))
-  (query-exec conn stmt id_campeonato id_competidor1 id_competidor2))
-
-(define (calculaDebito conn id_campeonato)
-  (define stmt
-    (prepare conn "UPDATE competidor SET debito = (SELECT precoKG from campeonato where id_campeonato = ?) * (SELECT peso_pescado from competidor where id_Campeonato = ?"))
-  (query-rows conn stmt id_campeonato))
-
-(define (inserirDadosPeixes conn id_competidor peso_pescado comprimento_total)
-  (define stmt
-    (prepare conn "UPDATE competidor SET peso_pescado = ?, comprimento_total = ? WHERE id_competidor = ?"))
-  (query-exec conn stmt peso_pescado comprimento_total id_competidor))
-
-(define (criar-partidas-aleatorias conn id_campeonato)
-  (let* ([competidores (consultarCompetidores conn id_campeonato)]
-         [competidores-embaralhados (shuffle competidores)]
-         [duplas (map list
-                      (take competidores-embaralhados (quotient (length competidores-embaralhados) 2))
-                      (drop competidores-embaralhados (quotient (length competidores-embaralhados) 2)))])
-    (for-each
-     (lambda (dupla)
-       (inserirPartida conn (first dupla) (second dupla)))
-     duplas)))
-
-#| (define (sortearDadosPeixes conn id_competidor)
-  ; Sorteia peso e comprimento para os três peixes
-  (define pesos (list (random 20.0) (random 20.0) (random 20.0)))
-  (define comprimentos (list (random 30.0) (random 30.0) (random 30.0)))
-
-  ; Insere os dados no banco de dados
-  (for-each
-   (lambda (p c)
-     (define stmt (prepare conn "UPDATE INTO competidor (peso_pescado, comprimento_total) VALUES (?, ?, ?)"))
-     (query-exec conn stmt id_competidor p c))
-   pesos comprimentos)) |#
-(define (sortearPeixes conn id_campeonato)
-  (define peixes (list "peixe1" "peixe2" "peixe3"))
-  (define peso_pescado 0)
-  (define comprimento_total 0)
-  (for-each
-   (lambda (peixe)
-     (define peso (random 5.0 20.0))
-     (define comprimento (random 10.0 30.0))
-     (set! peso_pescado (+ peso_pescado peso))
-     (set! comprimento_total (+ comprimento_total comprimento))
-     ;(inserirCompetidor conn id_campeonato peixe peso comprimento)
-     )
-   peixes)
-  (inserirDadosPeixes conn id_campeonato peso_pescado comprimento_total))
-
-(define (verificarColocacao conn id_competidor)
-  (define stmt (prepare conn "SELECT * FROM competidor WHERE comprimento_total = (SELECT max(comprimento_total) from competidor)"))
-  (query-rows conn stmt id_competidor))
-
-(define id_campeonato 0)
-(define id_competidor 0)
+(define id_campeonato #f)
 
 (provide campeonatoPescaIFC-init
          frCampeonato
@@ -183,8 +110,6 @@
            (cons (first l) (rest (rest l)))))))
     (send/apply the-font-list find-or-create-font l)))
 
-
-
 (define campeonatoPescaIFC #f)
 (define frCampeonato #f)
 (define vpCampeonato #f)
@@ -219,7 +144,6 @@
 (define frGanhador #f)
 (define pGanhador #f)
 (define msgGanhador #f)
-
 (define (campeonatoPescaIFC-init
          #:frCampeonato-label
          (frCampeonato-label "Campeonato")
@@ -301,29 +225,30 @@
          (btSalvarCampeonato-callback
           (lambda (button control-event)
             (define nome (send txtNomeCampeonato get-value))
-            (define n_competidores (send txtNumeroCompetidores get-value))
-            (define preco_peixe (send txtPrecoPeixe get-value))
             (define resultado (consultarCampeonato conn nome))
             (if resultado
                 (begin
-                  (set! id_campeonato (vector-ref (car resultado) 0))
-                  (send txtNumeroCompetidores set-value (number->string (vector-ref (car resultado) 2)))
-                  (send txtPrecoPeixe set-value (number->string (vector-ref (car resultado) 3)))
+                  (set! id_campeonato (vector-ref resultado 0))
+                  (send txtNumeroCompetidores set-value (number->string (vector-ref resultado 2)))
+                  (send txtPrecoPeixe set-value (number->string (vector-ref resultado 3)))
                   (send dlogResultadoConsulta set-label "Campeonato encontrado")
                   (send msgResultadoConsulta set-label (string-append "O campeonato " nome " foi encontrado. Clique em OK para ir para os competidores."))
                   (send dlogResultadoConsulta show #t)
+                  ;(send frCampeonato destroy)
                   (send frCompetidores show #t)
                   )
                 (begin
-                  (set! id_campeonato 0)
+                  (set! id_campeonato #f)
+                  ;(message-box "O campeonato não foi encontrado. Insira o número de competidores e o valor do kg do peixe.")
                   (send dlogResultadoConsulta set-label "Campeonato não encontrado")
                   (send msgResultadoConsulta set-label (string-append "O campeonato " nome " não foi encontrado. Insira o número de competidores e o valor do kg do peixe."))
                   (send dlogResultadoConsulta show #t)
-                  (send txtNumeroCompetidores enable #t)
-                  (send txtPrecoPeixe enable #t)
-                  (set! resultado (inserirCampeonato conn nome n_competidores preco_peixe))
-                  ))))
-         #:btSalvarCampeonato-font (btSalvarCampeonato-font (list->font (list 12 "Century Gothic" 'default 'normal 'normal #f 'default #f)))
+                  (send txtNumeroCompetidores enable)
+                  (send txtPrecoPeixe enable)))))
+         #:btSalvarCampeonato-font
+         (btSalvarCampeonato-font
+          (list->font
+           (list 12 "Century Gothic" 'default 'normal 'normal #f 'default #f)))
          #:btSalvarCampeonato-enabled
          (btSalvarCampeonato-enabled #t)
          #:dlogResultadoConsulta-min-width
@@ -367,30 +292,7 @@
          (vpCompetidor-alignment (list 'left 'top))
          #:txtNomeCompetidor-callback
          (txtNomeCompetidor-callback
-          (lambda (text-field control-event)
-            (define nome (send text-field get-value))
-            (define resultado (consultarCompetidor conn nome))
-            (if resultado
-                (begin
-                  (set! id_competidor (vector-ref (car resultado) 0))
-                  (send txtCPF set-value (vector-ref (car resultado) 2))
-                  (send txtPrecoPeixe set-value (number->string (vector-ref (car resultado) 3)))
-                  ;(send txtPrecoPeixe enable #t)
-                  (send btSalvarCompetidor set-label (label-bitmap-proc (list "Atualizar" #f #f)))
-                  (send dlogResultadoConsulta set-label "Competidor encontrado")
-                  (send msgResultadoConsulta set-label (string-append "O competidor " nome " foi encontrado"))
-                  (send dlogResultadoConsulta show #t)
-                  )
-                (begin
-                  (set! id_competidor 0)
-                  (send txtCPF set-value "")
-                  (send txtPrecoPeixe set-value "")
-                  ;(send txtPrecoPeixe enable #f)
-                  (send btSalvarCompetidor set-label (label-bitmap-proc (list "Salvar" #f #f)))
-                  (send dlogResultadoConsulta set-label "Competidor não encontrado")
-                  (send msgResultadoConsulta set-label (string-append "O competidor " nome " não foi encontrado. Insira o CPF e o peso do peixe."))
-                  (send dlogResultadoConsulta show #t)
-                  ))))
+          (lambda (text-field control-event) (void)))
          #:txtNomeCompetidor-font
          (txtNomeCompetidor-font
           (list->font
@@ -458,70 +360,6 @@
          #:btPartidas-callback
          (btPartidas-callback
           (lambda (button control-event)
-            #|             (define (criarDuplasEInserirPartidas conn id_campeonato)
-            ; consultar competidores do campeonato
-            (define resultado (consultarCompetidores conn id_campeonato))
-
-            ; criar duplas de competidores
-            (define duplas (combinacoes 2 resultado))
-
-            ; inserir partidas na tabela de partidas
-
-            (for-each (lambda (dupla)(inserirPartida conn (car dupla) (cadr dupla)))duplas)) |#
-            (define resultado(criar-partidas-aleatorias conn id_campeonato))
-            (if resultado
-                (begin
-                  (send msgCompetidor set-label "Partidas criadas com sucesso!")
-                  (send dlogCompetidor show #t)
-                  )
-                (begin
-                  (send msgCompetidor set-label "Erro ao criar partidas!")
-                  (send dlogCompetidor show #t)
-                  )
-                )
-            )
-          )
-         #:btPartidas-style
-         (btPartidas-style '())
-         #:btAtualizar-label
-         (btAtualizar-label (label-bitmap-proc (list "Atualizar" #f #f)))
-         #:btAtualizar-callback
-         (btAtualizar-callback
-          (lambda (button control-event)
-            (define nome (send txtNomeCampeonato get-value))
-            (define cpf (send txtCPF get-value))
-            (define cidade (send txtCidade get-value))
-            (define idade (send txtIdade get-value))
-            (define resultado (atualizarCompetidor conn nome cpf idade cidade))
-            (if resultado
-                (begin
-                  (send msgCompetidor set-label (string-append "O Competidor " nome " foi atualizado com sucesso!"))
-                  (send dlogCompetidor show #t)
-                  )
-                (begin
-                  (send msgCompetidor set-label (string-append "O Competidor " nome " não foi atualizado com sucesso!"))
-                  (send dlogCompetidor show #t))
-                )
-            )
-          )
-         #:btAtualizar-style
-         (btAtualizar-style '())
-         #:btExcluir-label
-         (btExcluir-label (label-bitmap-proc (list "Excluir" #f #f)))
-         #:btExcluir-callback
-         (btExcluir-callback (lambda (button control-event)
-                               ;(define resultado (excluirCompetidor conn (send txtCPF get-value)))
-                               (begin
-                                 (define resultado (excluirCompetidor conn (send txtCPF get-value)))
-                                 resultado)
-                               ))
-         #:btExcluir-style
-         (btExcluir-style '())
-         #:btSalvarCompetidor-label
-         (btSalvarCompetidor-label (label-bitmap-proc (list "Salvar" #f #f)))
-         #:btSalvarCompetidor-callback
-         (btSalvarCompetidor-callback
-          (lambda (button control-event)
             (define nome (send txtNomeCampeonato get-value))
             (define cpf (send txtCPF get-value))
             (define cidade (send txtCidade get-value))
@@ -529,13 +367,42 @@
             (define resultado (inserirCompetidor conn nome cpf cidade idade))
             (if resultado
                 (begin
+                  ;(set! id_campeonato (vector-ref resultado 0))
+                  ;(send txtNumeroCompetidores set-value (number->string (vector-ref resultado 2)))
+                  ;(send txtPrecoPeixe set-value (number->string (vector-ref resultado 3)))
+                  ;(send dlogResultadoConsulta set-label "Campeonato Encontrado")
                   (send msgCompetidor set-label (string-append "O Competidor " nome " foi cadastrado com sucesso!"))
                   (send dlogCompetidor show #t)
+                  ;(send frCampeonato destroy)
+                  ;(send frCompetidores show #t)
                   )
                 (begin
                   (send msgCompetidor set-label (string-append "O Competidor " nome " não foi cadastrado com sucesso!"))
                   (send dlogCompetidor show #t))
+                ;(set! id_campeonato #f)
+                ;(message-box "O campeonato não foi encontrado. Insira o número de competidores e o valor do kg do peixe.")
+                ;(send msgResultadoConsulta set-label (string-append "O campeonato " nome " não foi encontrado. Insira o número de competidores e o valor do kg do peixe."))
+                ;(send txtNumeroCompetidores enable)
+                ;(send txtPrecoPeixe enable))))))
                 )))
+         #:btPartidas-style
+         (btPartidas-style '())
+         #:btAtualizar-label
+         (btAtualizar-label (label-bitmap-proc (list "Atualizar" #f #f)))
+         #:btAtualizar-callback
+         (btAtualizar-callback (lambda (button control-event) (void)))
+         #:btAtualizar-style
+         (btAtualizar-style '())
+         #:btExcluir-label
+         (btExcluir-label (label-bitmap-proc (list "Excluir" #f #f)))
+         #:btExcluir-callback
+         (btExcluir-callback (lambda (button control-event) (void)))
+         #:btExcluir-style
+         (btExcluir-style '())
+         #:btSalvarCompetidor-label
+         (btSalvarCompetidor-label (label-bitmap-proc (list "Salvar" #f #f)))
+         #:btSalvarCompetidor-callback
+         (btSalvarCompetidor-callback (lambda (button control-event) (void)))
          #:btSalvarCompetidor-style
          (btSalvarCompetidor-style '())
          #:gpboxListaCompetidores-code-gen-class
@@ -552,50 +419,7 @@
          #:gpboxListaCompetidores-enabled
          (gpboxListaCompetidores-enabled #t)
          #:lboxCompetidores-choices
-         (lboxCompetidores-choices
-          (let ([resultado (consultarCompetidores conn id_campeonato)])
-            (if (empty? resultado)
-                (begin
-                  ;(send msgCompetidor set-label "Nenhum competidor encontrado!")
-                  ;(send dlogCompetidor show #t))
-                  (display "Nenhum competidor encontrado!")
-                  )
-                (for ([row resultado])
-                  (send lboxCompetidores insert (list->string row))))))
-         #|          #:lboxCompetidores-choices
-         (lboxCompetidores-choices
-          (let ([resultado (consultarCompetidores conn id_campeonato)])
-            (if (empty? resultado)
-                (begin
-                  (send msgCompetidor set-label "Nenhum competidor encontrado!")
-                  (send dlogCompetidor show #t))
-                (map list->string resultado)))) |#
-         #|          #:lboxCompetidores-choices
-         (lboxCompetidores-choices
-          (let ([resultado (consultarCompetidores conn id_campeonato)])
-            (if (empty? resultado)
-                (begin
-                  (send msgCompetidor set-label "Nenhum competidor encontrado!")
-                  (send dlogCompetidor show #t)
-                  )
-                (for-each
-                 (lambda (row)
-                   (send lboxCompetidores insert row))
-                 resultado)))) |#
-
-         #|          #:lboxCompetidores-choices
-         (lboxCompetidores-choices
-          (let ([resultado (consultarCompetidores conn id_campeonato)])
-            (if resultado
-                (begin
-                  (for-each
-                   (lambda (row)
-                     (send lboxCompetidores insert row))
-                   resultado))
-                (begin
-                  ;(send msgCompetidor show #t)
-                  ;(send msgCompetidor set-label "Nenhum competidor encontrado!")
-                  (send dlogCompetidor show #t))))) |#
+         (lboxCompetidores-choices (list "test" "test2" "test3"))
          #:lboxCompetidores-callback
          (lboxCompetidores-callback (lambda (list-box control-event) (void)))
          #:lboxCompetidores-style
@@ -1056,13 +880,13 @@
          list-box%
          (parent gpboxListaCompetidores)
          (label #f)
-         (choices '())
+         (choices lboxCompetidores-choices)
          (callback lboxCompetidores-callback)
          (style lboxCompetidores-style)
          (font
           (list->font
            (list 12 "Century Gothic" 'default 'normal 'normal #f 'default #f)))
-         ;(selection lboxCompetidores-selection)
+         (selection lboxCompetidores-selection)
          (enabled lboxCompetidores-enabled)
          (vert-margin lboxCompetidores-vert-margin)
          (horiz-margin lboxCompetidores-horiz-margin)
